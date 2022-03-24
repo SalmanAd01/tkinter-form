@@ -20,7 +20,7 @@ class Dashboard:
             frame.place(anchor='center', x=400, y=200)
 
             img = ImageTk.PhotoImage(Image.open(
-                "C:/Users/salman/OneDrive/Desktop/Form/static/values-1.png"))
+                "C:/Users/salman/OneDrive/Desktop/Form/assets/values-1.png"))
 
             label = Label(frame, image=img)
             label.pack()
