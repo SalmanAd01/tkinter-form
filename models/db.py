@@ -31,11 +31,12 @@ class DB:
         try:
             conn = sqlite3.connect('test.db')
             cursor = conn.execute(
-                f"SELECT NAME FROM USER WHERE EMAIL = '{email}' AND PASSWORD = '{password}'")
+                f"SELECT NAME,ID FROM USER WHERE EMAIL = '{email}' AND PASSWORD = '{password}'")
             print("--->> ")
             # print(self.name)
             for row in cursor:
                 self.name = row[0]
+                self.ID = row[1]
                 print(self.name)
                 return True
             self.show_error('Error', 'Invalid Email or Password')
@@ -46,7 +47,20 @@ class DB:
             return False
 
     def get_curr_user(self):
-        return self.name
+        return [self.name, self.ID]
+
+    def update_name(self, name, id):
+        try:
+            conn = sqlite3.connect('test.db')
+            conn.execute(f"UPDATE USER SET NAME = '{name}' WHERE ID = {id}")
+            conn.commit()
+            conn.close()
+            self.show_error('Success', 'Name updated successfully')
+        except Exception as e:
+            print(e)
+            self.show_error('Error', 'Some error occured')
+            conn.rollback()
+            conn.close()
 
 
 def create_table():

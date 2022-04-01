@@ -40,13 +40,11 @@ class Home:
             print(login_email, login_password)
             if db.check_if_exists(login_email, login_password) is True:
                 print("Login Success")
-                Dashboard(self.ws, db.get_curr_user()).display()
+                cur_user_info = db.get_curr_user()
+                Dashboard(self.ws, cur_user_info[0],
+                          cur_user_info[1]).display()
             else:
                 print("Login Failed")
-
-        var = StringVar()
-        countries = []
-        variable = StringVar()
 
         # widgets
         left_frame = Frame(

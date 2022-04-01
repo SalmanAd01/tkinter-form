@@ -8,7 +8,5 @@ ws = Tk()
 ws.geometry("940x500")
 Vd = Validate_Data(ws)
 db = DB(ws)
-f = ('Times', 14)
-
 frame_1 = Home(ws)
 frame_1.display()
