@@ -1,5 +1,9 @@
-import sqlite3
 from tkinter import messagebox
+import psycopg2
+from env import ENV
+
+USERNAME = ENV().get('.env', 'DB_USER')
+PASSWORD = ENV().get('.env', 'DB_Pass')
 
 
 class DB:
@@ -14,8 +18,11 @@ class DB:
 
     def insert_user(self, name, password, email, phone):
         try:
-            conn = sqlite3.connect('test.db')
-            conn.execute(f"INSERT INTO USER (NAME,PHONE,EMAIL,PASSWORD) \
+            conn = psycopg2.connect(
+                user=USERNAME, password=PASSWORD, port="5433", database="form_tkinter")
+            cur = conn.cursor()
+
+            cur.execute(f"INSERT INTO userform (NAME,PHONE,EMAIL,PASSWORD) \
             VALUES ('{name}',{phone},'{email}','{password}' )")
             self.show_error('Success', 'User added successfully')
             print("User added successfully")
@@ -29,14 +36,21 @@ class DB:
 
     def check_if_exists(self, email, password):
         try:
-            conn = sqlite3.connect('test.db')
-            cursor = conn.execute(
-                f"SELECT NAME,ID FROM USER WHERE EMAIL = '{email}' AND PASSWORD = '{password}'")
+            conn = psycopg2.connect(
+                user=USERNAME, password=PASSWORD, port="5433", database="form_tkinter")
+            cur = conn.cursor()
+
+            cursor = cur.execute(
+                f"SELECT NAME,ID FROM userform WHERE EMAIL = '{email}' AND PASSWORD = '{password}'")
             print("--->> ")
             # print(self.name)
-            for row in cursor:
-                self.name = row[0]
-                self.ID = row[1]
+            cursor = cur.fetchone()
+            print(cursor)
+            if cursor is None:
+                return False
+            else:
+                self.name = cursor[0]
+                self.ID = cursor[1]
                 print(self.name)
                 return True
             self.show_error('Error', 'Invalid Email or Password')
@@ -51,8 +65,11 @@ class DB:
 
     def update_name(self, name, id):
         try:
-            conn = sqlite3.connect('test.db')
-            conn.execute(f"UPDATE USER SET NAME = '{name}' WHERE ID = {id}")
+            conn = psycopg2.connect(
+                user=USERNAME, password=PASSWORD, port="5433", database="form_tkinter")
+            cur = conn.cursor()
+
+            cur.execute(f"UPDATE userform SET NAME = '{name}' WHERE ID = {id}")
             conn.commit()
             conn.close()
             self.show_error('Success', 'Name updated successfully')
@@ -64,14 +81,14 @@ class DB:
 
 
 def create_table():
-    conn = sqlite3.connect('test.db')
-    conn.execute('''CREATE TABLE IF NOT EXISTS USER
-        (ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            NAME TEXT,
-        PHONE INTEGER,
-        EMAIL TEXT,
-        PASSWORD TEXT)''')
-    conn.commit()
-    conn.close()
-
-    # show_error('Error', 'Some error occured')
+    try:
+        conn = psycopg2.connect(
+            user=USERNAME, password=PASSWORD, port="5433", database="form_tkinter")
+        cur = conn.cursor()
+        cur.execute(
+            '''CREATE TABLE IF NOT EXISTS userform (ID SERIAL PRIMARY KEY,NAME TEXT,PHONE INTEGER,EMAIL TEXT,PASSWORD TEXT); ''')
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(e)
+        messagebox.showerror('Error', 'Some error occured')
